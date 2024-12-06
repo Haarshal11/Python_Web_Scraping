@@ -1,236 +1,153 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": 7,
-   "id": "924ec658-4da9-479c-bed9-48b4cc9e7490",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "# import libraries \n",
-    "\n",
-    "from bs4 import BeautifulSoup\n",
-    "import requests\n",
-    "import time\n",
-    "import datetime\n",
-    "import smtplib"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "ab40692c-bd94-4d31-8ddf-06f70dfd2448",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "\n",
-    "# Connect to Website and pull in data\n",
-    "\n",
-    "URL = 'https://www.amazon.in/HP-i5-12450H-15-6-inch-Response-fa1373TX/dp/B0D2DDJ6PJ/ref=sr_1_1_sspa?crid=K2EF8MS8NXAO&dib=eyJ2IjoiMSJ9.wKYFBl3CDh5aC6wPvRrWIeKr2Psckim6jUuxzFBZyI9mynSbn0V1MGVFnmjOXbBypf0xjQyBr9ZbrCZOeFemvdzqsnz4DK4PGhuLvb8bXgfYOwSp_dXvUyde_m2UNA21xv3lT6lgLzNgV8aevY8fru6MWQOsyYFqcYMxrNKhx7u_vNDQFm9E2G_zyiDW-SqCD-hKHjEZvwXB6TqgbApj3cdt1zfdtR0T_SVIvDdHG-Q.aqj5rrjVsL1LcQ00PT6yOtdEtrqC3blJW451aOy8Txk&dib_tag=se&keywords=gaming+laptops+under+50000&qid=1733420537&sprefix=%2Caps%2C366&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1'\n",
-    "\n",
-    "headers = {\"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\",\n",
-    "           \"Accept-Encoding\": \"gzip, deflate\",\n",
-    "           \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\",\n",
-    "           \"DNT\": \"1\",\n",
-    "           \"Connection\": \"close\",\n",
-    "           \"Upgrade-Insecure-Requests\": \"1\"}\n",
-    "\n",
-    "page = requests.get(URL, headers=headers)\n",
-    "\n",
-    "soup1 = BeautifulSoup(page.content, \"html.parser\")\n",
-    "\n",
-    "soup2 = BeautifulSoup(soup1.prettify(), \"html.parser\")\n",
-    "\n",
-    "# extracttitle\n",
-    "title = soup2.find(id='productTitle').text.strip()\n",
-    "\n",
-    "#exttract price\n",
-    "price = soup2.find(\"span\", {\"class\": \"a-price-whole\"}).text.strip()\n",
-    "print(title)\n",
-    "print(price)\n",
-    "\n",
-    "#extract rating\n",
-    "rating = soup2.find(\"span\", {\"class\": \"a-icon-alt\"})\n",
-    "\n",
-    "# if the rating exists\n",
-    "if rating:\n",
-    "    rating_text = rating.text.strip()\n",
-    "    print(\"Rating:\", rating_text)\n",
-    "else:\n",
-    "    print(\"Rating information not found.\")\n",
-    "\n",
-    "\n",
-    "# Create a Timestamp for your output to track when data was collected\n",
-    "\n",
-    "import datetime\n",
-    "\n",
-    "today = datetime.date.today()\n",
-    "\n",
-    "print(today)\n",
-    "\n",
-    "\n",
-    "#stock\n",
-    "\n",
-    "stock = soup2.find(\"span\", {\"class\":\"a-size-medium a-color-success\"}).text.strip()\n",
-    "print(stock)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "b9e07cb2-7d5a-4bbb-b13b-ba07d844ba7c",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "# Create CSV and write headers and data into the file\n",
-    "\n",
-    "import csv \n",
-    "\n",
-    "header = ['Title', 'Price', 'Ratings' 'Date', 'Inventory']\n",
-    "data = [\"HP Victus Gaming Laptop, 12th Gen Intel Core i5-12450H,4GB RTX 2050 GPU,15.6-inch(39.6 cm),FHD,IPS,144Hz,16GB DDR4,512GB SSD,Backlit KB,MSO,B&O,9ms Response time(Blue, 2.29 kg),fa1373TX/fa1227TX\",\"62,990\",\"4.0\", \"2024-12-06\",\"In Stock\"]\n",
-    "\n",
-    "\n",
-    "with open('Amazon_Web_Scraper_Dataset.csv', 'w', newline='', encoding='UTF8') as f:\n",
-    "    writer = csv.writer(f)\n",
-    "    writer.writerow(header)\n",
-    "    writer.writerow(data)\n",
-    "    \n",
-    "\n",
-    "import pandas as pd\n",
-    "\n",
-    "dataframe = pd.read_csv(r'C:\\Users\\intel\\Amazon_Web_Scraper_Dataset.csv')\n",
-    "\n",
-    "print(dataframe)\n",
-    "\n"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "8c5a7af6-e50c-486c-ae32-bd7ff3400a01",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "\n",
-    "#Now we are appending data to the csv\n",
-    "\n",
-    "with open('Amazon_Web_Scraper_Dataset.csv', 'a+', newline='', encoding='UTF8') as f:\n",
-    "    writer = csv.writer(f)\n",
-    "    writer.writerow(data)\n"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "93a3accd-d766-44f8-b45b-2ede757b4675",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "#Combine all of the above code into one function\n",
-    "\n",
-    "def check_price():\n",
-    "    URL = 'https://www.amazon.in/HP-i5-12450H-15-6-inch-Response-fa1373TX/dp/B0D2DDJ6PJ/ref=sr_1_1_sspa?crid=K2EF8MS8NXAO&dib=eyJ2IjoiMSJ9.wKYFBl3CDh5aC6wPvRrWIeKr2Psckim6jUuxzFBZyI9mynSbn0V1MGVFnmjOXbBypf0xjQyBr9ZbrCZOeFemvdzqsnz4DK4PGhuLvb8bXgfYOwSp_dXvUyde_m2UNA21xv3lT6lgLzNgV8aevY8fru6MWQOsyYFqcYMxrNKhx7u_vNDQFm9E2G_zyiDW-SqCD-hKHjEZvwXB6TqgbApj3cdt1zfdtR0T_SVIvDdHG-Q.aqj5rrjVsL1LcQ00PT6yOtdEtrqC3blJW451aOy8Txk&dib_tag=se&keywords=gaming+laptops+under+50000&qid=1733420537&sprefix=%2Caps%2C366&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1'\n",
-    "\n",
-    "    headers = {\"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\",\n",
-    "               \"Accept-Encoding\": \"gzip, deflate\",\n",
-    "               \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\",\n",
-    "               \"DNT\": \"1\",\n",
-    "               \"Connection\": \"close\",\n",
-    "               \"Upgrade-Insecure-Requests\": \"1\"}\n",
-    "\n",
-    "    page = requests.get(URL, headers=headers)\n",
-    "\n",
-    "    soup1 = BeautifulSoup(page.content, \"html.parser\")\n",
-    "\n",
-    "    soup2 = BeautifulSoup(soup1.prettify(), \"html.parser\")\n",
-    "\n",
-    "    # extracttitle\n",
-    "    title = soup2.find(id='productTitle').text.strip()\n",
-    "\n",
-    "    #exttract price\n",
-    "    price = soup2.find(\"span\", {\"class\": \"a-price-whole\"}).text.strip()\n",
-    "    print(title)\n",
-    "    print(price)\n",
-    "\n",
-    "    #extract rating\n",
-    "    rating = soup2.find(\"span\", {\"class\": \"a-icon-alt\"})\n",
-    "\n",
-    "    # if the rating exists\n",
-    "    if rating:\n",
-    "        rating_text = rating.text.strip()\n",
-    "        print(\"Rating:\", rating_text)\n",
-    "    else:\n",
-    "        print(\"Rating information not found.\")\n",
-    "\n",
-    "\n",
-    "    # Create a Timestamp for your output to track when data was collected\n",
-    "\n",
-    "    import datetime\n",
-    "\n",
-    "    today = datetime.date.today()\n",
-    "\n",
-    "    print(today)\n",
-    "\n",
-    "\n",
-    "    # stock\n",
-    "\n",
-    "    stock = soup2.find(\"span\", {\"class\":\"a-size-medium a-color-success\"}).text.strip()\n",
-    "    print(stock)\n",
-    "\n",
-    "    import csv \n",
-    "\n",
-    "    header = ['Title', 'Price', 'Ratings' 'Date', 'Inventory']\n",
-    "    data = [\"HP Victus Gaming Laptop, 12th Gen Intel Core i5-12450H,4GB RTX 2050 GPU,15.6-inch(39.6 cm),FHD,IPS,144Hz,16GB DDR4,512GB SSD,Backlit KB,MSO,B&O,9ms Response time(Blue, 2.29 kg),fa1373TX/fa1227TX\",\"62,990\",\"4.0\", \"2024-12-06\",\"In Stock\"]\n",
-    "\n",
-    "    writer = csv.writer(f)\n",
-    "    writer.writerow(header)\n",
-    "    writer.writerow(data)\n",
-    "\n",
-    "    with open('Amazon_Web_Scraper_Dataset.csv', 'w', newline='', encoding='UTF8') as f:\n",
-    "        writer = csv.writer(f)\n",
-    "        writer.writerow(data)\n",
-    "\n"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "c1944b11-c23c-4792-a20a-61fd64e3efdc",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "# Runs check_price after a set time and inputs data into your CSV\n",
-    "\n",
-    "while(True):\n",
-    "    check_price()\n",
-    "    time.sleep(86400)\n",
-    "import pandas as pd\n",
-    "\n",
-    "dataframe = pd.read_csv(r'C:\\Users\\intel\\Amazon_Web_Scraper_Dataset.csv')\n",
-    "\n",
-    "print(dataframe)"
-   ]
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3 (ipykernel)",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.12.7"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
+# import libraries 
+
+from bs4 import BeautifulSoup
+import requests
+import time
+import datetime
+import smtplib
+# Connect to Website and pull in data
+
+URL = 'https://www.amazon.in/HP-i5-12450H-15-6-inch-Response-fa1373TX/dp/B0D2DDJ6PJ/ref=sr_1_1_sspa?crid=K2EF8MS8NXAO&dib=eyJ2IjoiMSJ9.wKYFBl3CDh5aC6wPvRrWIeKr2Psckim6jUuxzFBZyI9mynSbn0V1MGVFnmjOXbBypf0xjQyBr9ZbrCZOeFemvdzqsnz4DK4PGhuLvb8bXgfYOwSp_dXvUyde_m2UNA21xv3lT6lgLzNgV8aevY8fru6MWQOsyYFqcYMxrNKhx7u_vNDQFm9E2G_zyiDW-SqCD-hKHjEZvwXB6TqgbApj3cdt1zfdtR0T_SVIvDdHG-Q.aqj5rrjVsL1LcQ00PT6yOtdEtrqC3blJW451aOy8Txk&dib_tag=se&keywords=gaming+laptops+under+50000&qid=1733420537&sprefix=%2Caps%2C366&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1'
+
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+           "Accept-Encoding": "gzip, deflate",
+           "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+           "DNT": "1",
+           "Connection": "close",
+           "Upgrade-Insecure-Requests": "1"}
+
+page = requests.get(URL, headers=headers)
+
+soup1 = BeautifulSoup(page.content, "html.parser")
+
+soup2 = BeautifulSoup(soup1.prettify(), "html.parser")
+
+# extracttitle
+title = soup2.find(id='productTitle').text.strip()
+
+#exttract price
+price = soup2.find("span", {"class": "a-price-whole"}).text.strip()
+print(title)
+print(price)
+
+#extract rating
+rating = soup2.find("span", {"class": "a-icon-alt"})
+
+# if the rating exists
+if rating:
+    rating_text = rating.text.strip()
+    print("Rating:", rating_text)
+else:
+    print("Rating information not found.")
+
+
+# Create a Timestamp for your output to track when data was collected
+
+import datetime
+
+today = datetime.date.today()
+
+print(today)
+
+
+#stock
+
+stock = soup2.find("span", {"class":"a-size-medium a-color-success"}).text.strip()
+print(stock)
+# Create CSV and write headers and data into the file
+
+import csv 
+
+header = ['Title', 'Price', 'Ratings' 'Date', 'Inventory']
+data = ["HP Victus Gaming Laptop, 12th Gen Intel Core i5-12450H,4GB RTX 2050 GPU,15.6-inch(39.6 cm),FHD,IPS,144Hz,16GB DDR4,512GB SSD,Backlit KB,MSO,B&O,9ms Response time(Blue, 2.29 kg),fa1373TX/fa1227TX","62,990","4.0", "2024-12-06","In Stock"]
+
+
+with open('Amazon_Web_Scraper_Dataset.csv', 'w', newline='', encoding='UTF8') as f:
+    writer = csv.writer(f)
+    writer.writerow(header)
+    writer.writerow(data)
+    
+
+import pandas as pd
+
+dataframe = pd.read_csv(r'C:\Users\intel\Amazon_Web_Scraper_Dataset.csv')
+
+print(dataframe)
+#Now we are appending data to the csv
+
+with open('Amazon_Web_Scraper_Dataset.csv', 'a+', newline='', encoding='UTF8') as f:
+    writer = csv.writer(f)
+    writer.writerow(data)
+#Combine all of the above code into one function
+
+def check_price():
+    URL = 'https://www.amazon.in/HP-i5-12450H-15-6-inch-Response-fa1373TX/dp/B0D2DDJ6PJ/ref=sr_1_1_sspa?crid=K2EF8MS8NXAO&dib=eyJ2IjoiMSJ9.wKYFBl3CDh5aC6wPvRrWIeKr2Psckim6jUuxzFBZyI9mynSbn0V1MGVFnmjOXbBypf0xjQyBr9ZbrCZOeFemvdzqsnz4DK4PGhuLvb8bXgfYOwSp_dXvUyde_m2UNA21xv3lT6lgLzNgV8aevY8fru6MWQOsyYFqcYMxrNKhx7u_vNDQFm9E2G_zyiDW-SqCD-hKHjEZvwXB6TqgbApj3cdt1zfdtR0T_SVIvDdHG-Q.aqj5rrjVsL1LcQ00PT6yOtdEtrqC3blJW451aOy8Txk&dib_tag=se&keywords=gaming+laptops+under+50000&qid=1733420537&sprefix=%2Caps%2C366&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1'
+
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+               "Accept-Encoding": "gzip, deflate",
+               "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+               "DNT": "1",
+               "Connection": "close",
+               "Upgrade-Insecure-Requests": "1"}
+
+    page = requests.get(URL, headers=headers)
+
+    soup1 = BeautifulSoup(page.content, "html.parser")
+
+    soup2 = BeautifulSoup(soup1.prettify(), "html.parser")
+
+    # extracttitle
+    title = soup2.find(id='productTitle').text.strip()
+
+    #exttract price
+    price = soup2.find("span", {"class": "a-price-whole"}).text.strip()
+    print(title)
+    print(price)
+
+    #extract rating
+    rating = soup2.find("span", {"class": "a-icon-alt"})
+
+    # if the rating exists
+    if rating:
+        rating_text = rating.text.strip()
+        print("Rating:", rating_text)
+    else:
+        print("Rating information not found.")
+
+
+    # Create a Timestamp for your output to track when data was collected
+
+    import datetime
+
+    today = datetime.date.today()
+
+    print(today)
+
+
+    # stock
+
+    stock = soup2.find("span", {"class":"a-size-medium a-color-success"}).text.strip()
+    print(stock)
+
+    import csv 
+
+    header = ['Title', 'Price', 'Ratings' 'Date', 'Inventory']
+    data = ["HP Victus Gaming Laptop, 12th Gen Intel Core i5-12450H,4GB RTX 2050 GPU,15.6-inch(39.6 cm),FHD,IPS,144Hz,16GB DDR4,512GB SSD,Backlit KB,MSO,B&O,9ms Response time(Blue, 2.29 kg),fa1373TX/fa1227TX","62,990","4.0", "2024-12-06","In Stock"]
+
+    writer = csv.writer(f)
+    writer.writerow(header)
+    writer.writerow(data)
+
+    with open('Amazon_Web_Scraper_Dataset.csv', 'w', newline='', encoding='UTF8') as f:
+        writer = csv.writer(f)
+        writer.writerow(data)
+# Runs check_price after a set time and inputs data into your CSV
+
+while(True):
+    check_price()
+    time.sleep(86400)
+import pandas as pd
+
+dataframe = pd.read_csv(r'C:\Users\intel\Amazon_Web_Scraper_Dataset.csv')
+
+print(dataframe)
